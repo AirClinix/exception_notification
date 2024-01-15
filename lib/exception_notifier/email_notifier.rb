@@ -22,7 +22,8 @@ module ExceptionNotifier
       email_headers: {},
       mailer_parent: 'ActionMailer::Base',
       template_path: 'exception_notifier',
-      deliver_with: nil
+      deliver_with: nil,
+      sanitize: ->(message) { message }
     }.freeze
 
     module Mailer
@@ -78,7 +79,7 @@ module ExceptionNotifier
             subject << "(#{@options[:accumulated_errors_count]} times)" if @options[:accumulated_errors_count].to_i > 1
             subject << "#{@kontroller.controller_name}##{@kontroller.action_name}" if include_controller?
             subject << " (#{@exception.class})"
-            subject << " #{@exception.message.inspect}" if @options[:verbose_subject]
+            subject << " #{@options[:sanitize].call(@exception.message.inspect)}" if @options[:verbose_subject]
             subject = EmailNotifier.normalize_digits(subject) if @options[:normalize_subject]
             subject.length > 120 ? subject[0...120] + '...' : subject
           end
