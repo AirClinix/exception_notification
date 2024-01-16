@@ -1,6 +1,6 @@
 <%= @exception.class.to_s =~ /^[aeiou]/i ? 'An' : 'A' %> <%= @exception.class %> occurred in background at <%= raw @timestamp %> :
 
-  <%= @exception.message %>
+  <%= @options[:sanitize].call(@exception.message) %>
   <%= @backtrace.first %>
 
 <%  sections = @sections.map do |section|
