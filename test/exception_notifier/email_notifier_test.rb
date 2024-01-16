@@ -191,6 +191,22 @@ class EmailNotifierTest < ActiveSupport::TestCase
     assert_equal '[ERROR]  (ZeroDivisionError)', mail.subject
   end
 
+  test 'should modify message if a sanitize callback is provided' do
+    email_notifier = ExceptionNotifier::EmailNotifier.new(
+      sender_address: %("Dummy Notifier" <dummynotifier@example.com>),
+      exception_recipients: %w[dummyexceptions@example.com],
+      email_format: :text,
+      sanitize: ->(message) { message.truncate(10, omission: "…") }
+    )
+
+    mail = email_notifier.call(@exception)
+
+    assert_equal(
+      "divided b…",
+      mail.decode_body[90...100]
+    )
+  end
+
   test 'should send html email when selected html format' do
     email_notifier = ExceptionNotifier::EmailNotifier.new(
       sender_address: %("Dummy Notifier" <dummynotifier@example.com>),
